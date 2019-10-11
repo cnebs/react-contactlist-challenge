@@ -1,10 +1,15 @@
 import React, { Component } from "react";
 
-import ContactItem from "../components/ContactItem";
+import ContactItem from "../components/ContactItem.js";
 
 class ContactList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      favorites: []
+    };
+
+    this.handlePush = this.handlePush.bind(this);
 
     this.contacts = [
       { firstName: "Allen", lastName: "Lane", phone: "542-987-3456" },
@@ -15,6 +20,16 @@ class ContactList extends Component {
       { firstName: "Richard", lastName: "Julian", phone: "542-211-5678" },
       { firstName: "Bill", lastName: "Allen", phone: "542-654-2154" }
     ];
+  }
+
+  handlePush(firstName, lastName, phone) { // If a contact's favorite button is clicked, add contact to state
+    const favorites = this.state.favorites;
+      favorites.push({
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone
+      });
+      this.setState({favorites: favorites});
   }
 
   render() {
@@ -33,12 +48,55 @@ class ContactList extends Component {
     // Allen Lane – (542) 987-3456
     // Bob Larson – (542) 321-3456
     // .....
+
+    const {favorites} = this.state;
+
     return (
-      <div style={{ width: 400 }}>
-        {this.contacts.map((contact, idx) => (
-          <ContactItem key={idx} {...contact} />
-        ))}
-      </div>
+      <>
+        <div style={{ width: 400 }}>
+          {this.contacts.sort( (a, b) => { // Sort alphabetically regardless of u/l-case
+            let strA = a.lastName.toUpperCase();
+            let strB = b.lastName.toUpperCase();
+            return (( strA < strB ) ? -1 : ( strA > strB ) ? 1 : 0);
+
+          }).filter( contact => ( // Filter away contacts without phone numbers
+            contact.phone.length 
+
+          )).map((contact, idx, arr) => { // Build the contact list
+            const prev = idx-1,
+            firstName = contact.firstName,
+            lastName = contact.lastName,
+            phone = contact.phone;
+            return (
+              idx == 0 || contact.lastName[0] != arr[prev].lastName[0] ? // If first contact or new first letter of last name, build a header
+              <div key={idx}>
+                <p>{contact.lastName[0]}</p>
+                <p>-------</p>
+                <ContactItem key={idx} {...contact} handlePush={this.handlePush}/>
+                <button onClick={() => (this.handlePush(firstName, lastName, phone))}>Favorite</button>
+              </div>
+              : // Otherwise render a standard ContactItem
+              <div key={idx}>
+                <ContactItem key={idx} {...contact} handlePush={this.handlePush}/>
+                <button onClick={() => (this.handlePush(firstName, lastName, phone))}>Favorite</button>              
+              </div>
+            )
+          })}
+        </div>
+
+        <br></br>
+        
+        {favorites.length ?
+          <>
+            <h2>Favorites</h2>
+            {favorites.map( (favorite, idx) => (
+              <ContactItem key={idx} {...favorite} />
+            ))}
+          </>
+          :
+          <></>
+        }
+      </>
     );
   }
 }

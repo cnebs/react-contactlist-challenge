@@ -1,6 +1,7 @@
 import React from "react";
+import formattedPhone from "../helpers/formatPhone.js"
 
-const ContactItem = ({ firstName, lastName, phone }) => {
+const ContactItem = ({ firstName, lastName, phone, handlePush }) => {
   return (
     <div
       style={{
@@ -12,7 +13,7 @@ const ContactItem = ({ firstName, lastName, phone }) => {
       <p>
         {firstName} <strong>{lastName}</strong>
       </p>
-      <p>{phone}</p>
+      <p>{formattedPhone(phone)}</p>
     </div>
   );
 };
